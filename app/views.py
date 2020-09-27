@@ -38,54 +38,61 @@ from . import appbuilder, db
 """
 
 
-@appbuilder.app.errorhandler(404)
-def page_not_found(e):
-    return (
-        render_template(
-            "404.html", base_template=appbuilder.base_template, appbuilder=appbuilder
-        ),
-        404,
-    )
+# @appbuilder.app.errorhandler(404)
+# def page_not_found(e):
+#     return (
+#         render_template(
+#             "404.html", base_template=appbuilder.base_template, appbuilder=appbuilder
+#         ),
+#         404,
+#     )
+#
+#
+# db.create_all()
 
 
-db.create_all()
+class MyView(BaseView):
 
-class Myview(BaseView):
-    route_base = "/myview"
+    default_view = "method1"
 
-
-    @expose('/method1/<string:param1>')
+    @expose("/method1/")
     @has_access
-    def method1(self,param1 ):
+    def method1(self):
+        # do something with param1
+        # and return to previous page or index
+        return "Hello"
+
+    @expose("/method2/<string:param1>")
+    @has_access
+    def method2(self, param1):
+        # do something with param1
+        # and render template with param
+        param1 = "Goodbye %s" % (param1)
         return param1
 
-    @expose('/method2/<string:param2>')
-    def method2(self, param2):
-        param = 'Hello %s' %(param2)
-        return param
+    @expose("/method3/<string:param1>")
+    @has_access
+    def method3(self, param1):
+        # do something with param1
+        # and render template with param
+        param1 = "Goodbye %s" % (param1)
+        return self.render_template("method3.html", param1=param1)
 
-appbuilder.add_view_no_menu(Myview())
 
-
-# class MyModelApi(ModelRestApi):
-#     datamodel = SQLAInterface(MyModel)
-#
-#
-# appbuilder.add_api(MyModelApi)
-#
-# # Create your Views::
-#
-# class MyModelView(ModelView):
-#     datamodel = SQLAInterface(MyModel)
-#
-#
-# # Next, register your Views::
-#
-#
+appbuilder.add_view(MyView(), "Method1", category="My View")
 # appbuilder.add_view(
-#     MyModelView,
-#     "My View",
-#     icon="fa-folder-open-o",
-#     category="My Category",
-#     category_icon='fa-envelope'
+#     MyView(), "Method2", href='/myview/method2/jonh', category='My View'
 # )
+# Use add link instead there is no need to create MyView twice.
+appbuilder.add_link("Method2", href="/myview/method2/jonh", category="My View")
+appbuilder.add_link("Method3", href="/myview/method3/jonh", category="My View")
+
+# appbuilder.add_view(MyView(), "Method1", category="My View")
+#
+# appbuilder.add_link(
+#     "Method2",
+#     href='/myview/method2/chungdm',
+#     category='Chung View'
+# )
+
+
